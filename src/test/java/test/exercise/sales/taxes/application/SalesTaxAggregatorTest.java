@@ -15,18 +15,18 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CalculateAggregatedSalesTaxTest {
+public class SalesTaxAggregatorTest {
 
     @Rule
     public ExpectedException expectedException  = ExpectedException.none();
 
-    private RoundSalesTax roundSalesTax = mock(RoundSalesTax.class);
+    private SalesTaxRounder salesTaxRounder = mock(SalesTaxRounder.class);
 
     @Test
     public void taxIsZeroIfNoSalesTaxRateProvidersAreSupplied(){
         final double expectedTax = 0;
-        final CalculateSalesTax calculateAggregatedSalesTax = new CalculateAggregatedSalesTax(emptySet(), roundSalesTax);
-        when(roundSalesTax.apply(expectedTax)).thenReturn(expectedTax);
+        final SalesTaxCalculator calculateAggregatedSalesTax = new SalesTaxCalculatorImpl(emptySet(), salesTaxRounder);
+        when(salesTaxRounder.apply(expectedTax)).thenReturn(expectedTax);
 
         final double tax = calculateAggregatedSalesTax.apply(new Product("some product", new Category("some category"), false, 1));
 
@@ -36,8 +36,8 @@ public class CalculateAggregatedSalesTaxTest {
     @Test
     public void taxIsExpectedWithSingleSalesTaxRateProvider(){
         final double expectedTax = 0.1;
-        final CalculateSalesTax calculateAggregatedSalesTax = new CalculateAggregatedSalesTax(singleton((p) -> 10), roundSalesTax);
-        when(roundSalesTax.apply(expectedTax)).thenReturn(expectedTax);
+        final SalesTaxCalculator calculateAggregatedSalesTax = new SalesTaxCalculatorImpl(singleton((p) -> 10), salesTaxRounder);
+        when(salesTaxRounder.apply(expectedTax)).thenReturn(expectedTax);
 
         final double tax = calculateAggregatedSalesTax.apply(new Product("some product", new Category("some category"), false, 1));
 
@@ -46,11 +46,11 @@ public class CalculateAggregatedSalesTaxTest {
 
     @Test
     public void taxIsAggregatedWithMultipleSalesTaxRateProviders(){
-        final GetSalesTaxRate provider1 = (p) -> 10;
-        final GetSalesTaxRate provider2 = (p) -> 20;
+        final SalesTaxRateProvider provider1 = (p) -> 10;
+        final SalesTaxRateProvider provider2 = (p) -> 20;
         final double expectedTax = 0.3d;
-        final CalculateSalesTax calculateAggregatedSalesTax = new CalculateAggregatedSalesTax(new HashSet<>(asList(provider1, provider2)), roundSalesTax);
-        when(roundSalesTax.apply(expectedTax)).thenReturn(expectedTax);
+        final SalesTaxCalculator calculateAggregatedSalesTax = new SalesTaxCalculatorImpl(new HashSet<>(asList(provider1, provider2)), salesTaxRounder);
+        when(salesTaxRounder.apply(expectedTax)).thenReturn(expectedTax);
 
         final double tax = calculateAggregatedSalesTax.apply(new Product("some product", new Category("some category"), false, 1));
 
@@ -59,11 +59,11 @@ public class CalculateAggregatedSalesTaxTest {
 
     @Test
     public void taxIsRounded(){
-        final GetSalesTaxRate provider1 = (p) -> 10;
+        final SalesTaxRateProvider provider1 = (p) -> 10;
         final double expectedUnrounded = 12.56;
         final double rounded = 12.60;
-        final CalculateSalesTax calculateAggregatedSalesTax = new CalculateAggregatedSalesTax(singleton(provider1), roundSalesTax);
-        when(roundSalesTax.apply(expectedUnrounded)).thenReturn(rounded);
+        final SalesTaxCalculator calculateAggregatedSalesTax = new SalesTaxCalculatorImpl(singleton(provider1), salesTaxRounder);
+        when(salesTaxRounder.apply(expectedUnrounded)).thenReturn(rounded);
 
         final double tax = calculateAggregatedSalesTax.apply(new Product("some product", new Category("some category"), false, 125.6d));
 
@@ -75,15 +75,15 @@ public class CalculateAggregatedSalesTaxTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("saltesTaxRateProviders should not be null");
 
-        new CalculateAggregatedSalesTax(null, roundSalesTax);
+        new SalesTaxCalculatorImpl(null, salesTaxRounder);
     }
 
     @Test
     public void roundSalesTaxShouldNotBeNull(){
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("roundSalesTax should not be null");
+        expectedException.expectMessage("salesTaxRounder should not be null");
 
-        new CalculateAggregatedSalesTax(emptySet(), null);
+        new SalesTaxCalculatorImpl(emptySet(), null);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class CalculateAggregatedSalesTaxTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("product should not be null");
 
-        final CalculateSalesTax calculateAggregatedSalesTax = new CalculateAggregatedSalesTax(emptySet(), roundSalesTax);
+        final SalesTaxCalculator calculateAggregatedSalesTax = new SalesTaxCalculatorImpl(emptySet(), salesTaxRounder);
 
         calculateAggregatedSalesTax.apply(null);
     }

@@ -12,14 +12,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CreateReceiptImplTest {
+public class TaxingReceiptCreatorTest {
 
     @Rule
     public ExpectedException expectedException  = ExpectedException.none();
     private Product product = new Product("some product", new Category("some category"), false, 10);
     private Product product1 = new Product("some product", new Category("some category"), false, 124.99);
-    private final CalculateSalesTax calculateSalesTax = mock(CalculateSalesTax.class);
-    private final CreateReceiptImpl createReceipt = new CreateReceiptImpl(calculateSalesTax);
+    private final SalesTaxCalculator salesTaxCalculator = mock(SalesTaxCalculator.class);
+    private final TaxingReceiptCreator createReceipt = new TaxingReceiptCreator(salesTaxCalculator);
     private final ShoppingBasket shoppingBasket = new ShoppingBasket();
 
     @Test
@@ -36,7 +36,7 @@ public class CreateReceiptImplTest {
         final int quantity = 2;
         shoppingBasket.add(product, quantity);
         final double salesTax = 1.15;
-        when(calculateSalesTax.apply(product)).thenReturn(salesTax);
+        when(salesTaxCalculator.apply(product)).thenReturn(salesTax);
 
         final Receipt receipt = createReceipt.apply(shoppingBasket);
 
@@ -53,8 +53,8 @@ public class CreateReceiptImplTest {
         shoppingBasket.add(product1, quantity1);
         final double salesTax = 1.15;
         final double salesTax1 = 10.15;
-        when(calculateSalesTax.apply(product)).thenReturn(salesTax);
-        when(calculateSalesTax.apply(product1)).thenReturn(salesTax1);
+        when(salesTaxCalculator.apply(product)).thenReturn(salesTax);
+        when(salesTaxCalculator.apply(product1)).thenReturn(salesTax1);
 
         final Receipt receipt = createReceipt.apply(shoppingBasket);
 
@@ -71,9 +71,9 @@ public class CreateReceiptImplTest {
     @Test
     public void calculateSalesTaxShouldNotBeNull(){
         expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("calculateSalesTax should not be null");
+        expectedException.expectMessage("salesTaxCalculator should not be null");
 
-        new CreateReceiptImpl(null);
+        new TaxingReceiptCreator(null);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class CreateReceiptImplTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("shoppingBasket should not be null");
 
-        final CreateReceiptImpl createReceipt = new CreateReceiptImpl(p -> 1);
+        final TaxingReceiptCreator createReceipt = new TaxingReceiptCreator(p -> 1);
 
         createReceipt.apply(null);
     }

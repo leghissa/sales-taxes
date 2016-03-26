@@ -5,16 +5,16 @@ import test.exercise.sales.taxes.util.DBC;
 
 import java.util.Set;
 
-public class CalculateAggregatedSalesTax implements CalculateSalesTax {
+public class SalesTaxCalculatorImpl implements SalesTaxCalculator {
 
-    private final Set<GetSalesTaxRate> saltesTaxRateProviders;
-    private final RoundSalesTax roundSalesTax;
+    private final Set<SalesTaxRateProvider> saltesTaxRateProviders;
+    private final SalesTaxRounder salesTaxRounder;
 
-    public CalculateAggregatedSalesTax(Set<GetSalesTaxRate> salesTaxRateProviders, RoundSalesTax roundSalesTax) {
+    public SalesTaxCalculatorImpl(Set<SalesTaxRateProvider> salesTaxRateProviders, SalesTaxRounder salesTaxRounder) {
         DBC.notNull(salesTaxRateProviders, "saltesTaxRateProviders should not be null");
-        DBC.notNull(roundSalesTax, "roundSalesTax should not be null");
+        DBC.notNull(salesTaxRounder, "salesTaxRounder should not be null");
         this.saltesTaxRateProviders = salesTaxRateProviders;
-        this.roundSalesTax = roundSalesTax;
+        this.salesTaxRounder = salesTaxRounder;
     }
 
     @Override
@@ -25,6 +25,6 @@ public class CalculateAggregatedSalesTax implements CalculateSalesTax {
                 .mapToDouble(provider -> provider.apply(product))
                 .sum();
         final double unroundedSalesTax = totalSalesTaxRate * product.getPrice() / 100;
-        return roundSalesTax.apply(unroundedSalesTax);
+        return salesTaxRounder.apply(unroundedSalesTax);
     }
 }

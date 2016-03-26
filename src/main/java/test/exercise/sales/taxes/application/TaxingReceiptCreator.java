@@ -5,13 +5,13 @@ import test.exercise.sales.taxes.model.Receipt;
 import test.exercise.sales.taxes.model.ShoppingBasket;
 import test.exercise.sales.taxes.util.DBC;
 
-public class CreateReceiptImpl implements CreateReceipt {
+public class TaxingReceiptCreator implements ReceiptCreator {
 
-    private final CalculateSalesTax calculateSalesTax;
+    private final SalesTaxCalculator salesTaxCalculator;
 
-    public CreateReceiptImpl(CalculateSalesTax calculateSalesTax) {
-        DBC.notNull(calculateSalesTax, "calculateSalesTax should not be null");
-        this.calculateSalesTax = calculateSalesTax;
+    public TaxingReceiptCreator(SalesTaxCalculator salesTaxCalculator) {
+        DBC.notNull(salesTaxCalculator, "salesTaxCalculator should not be null");
+        this.salesTaxCalculator = salesTaxCalculator;
     }
 
     @Override
@@ -21,8 +21,7 @@ public class CreateReceiptImpl implements CreateReceipt {
         final Receipt receipt = new Receipt();
         shoppingBasket.getItems().forEach((p, q) ->
                 receipt.addItem(
-                    new PurchasedItem(p, calculateSalesTax.apply(p)),
-                    q
+                    new PurchasedItem(p, salesTaxCalculator.apply(p), q)
                 )
         );
         return receipt;

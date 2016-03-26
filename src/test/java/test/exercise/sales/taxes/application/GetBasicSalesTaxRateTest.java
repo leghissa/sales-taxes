@@ -24,7 +24,7 @@ public class GetBasicSalesTaxRateTest {
 
     private final Supplier<Double> taxRateSupplier = mock(Supplier.class);
     private final Supplier<Set<Category>> exceptionalCategoriesSupplier = mock(Supplier.class);
-    private GetSalesTaxRate getSalesTaxRate = new GetBasicSalesTaxRate(taxRateSupplier, exceptionalCategoriesSupplier);
+    private SalesTaxRateProvider salesTaxRateProvider = new BasicSalesTaxRateProvider(taxRateSupplier, exceptionalCategoriesSupplier);
 
     @Test
     public void rateOfTenPercentForNonExceptionalCategory(){
@@ -32,7 +32,7 @@ public class GetBasicSalesTaxRateTest {
         when(taxRateSupplier.get()).thenReturn(basicTaxRate);
         when(exceptionalCategoriesSupplier.get()).thenReturn(emptySet());
 
-        final double got = getSalesTaxRate.apply(new Product("some product", new Category("nonExceptional"), false, 1));
+        final double got = salesTaxRateProvider.apply(new Product("some product", new Category("nonExceptional"), false, 1));
 
         assertThat(got).isEqualTo(basicTaxRate);
     }
@@ -43,7 +43,7 @@ public class GetBasicSalesTaxRateTest {
         when(taxRateSupplier.get()).thenReturn(10d);
         when(exceptionalCategoriesSupplier.get()).thenReturn(singleton(exceptionalCategory));
 
-        final double got = getSalesTaxRate.apply(new Product("some product", exceptionalCategory, false, 1));
+        final double got = salesTaxRateProvider.apply(new Product("some product", exceptionalCategory, false, 1));
 
         assertThat(got).isEqualTo(0);
     }
@@ -55,8 +55,8 @@ public class GetBasicSalesTaxRateTest {
                 .thenReturn(20d);
         when(exceptionalCategoriesSupplier.get()).thenReturn(emptySet());
 
-        final double first = getSalesTaxRate.apply(new Product("some product", new Category("nonExceptional"), false, 1));
-        final double second = getSalesTaxRate.apply(new Product("some product", new Category("nonExceptional"), false, 1));
+        final double first = salesTaxRateProvider.apply(new Product("some product", new Category("nonExceptional"), false, 1));
+        final double second = salesTaxRateProvider.apply(new Product("some product", new Category("nonExceptional"), false, 1));
 
         assertThat(first).isEqualTo(10);
         assertThat(second).isEqualTo(20);
@@ -70,7 +70,7 @@ public class GetBasicSalesTaxRateTest {
         when(taxRateSupplier.get()).thenReturn(10d);
         when(exceptionalCategoriesSupplier.get()).thenReturn(exceptionalCategories);
 
-        final double got = getSalesTaxRate.apply(new Product("some product", exceptionalCategory1, false, 1));
+        final double got = salesTaxRateProvider.apply(new Product("some product", exceptionalCategory1, false, 1));
 
         assertThat(got).isEqualTo(0d);
     }
@@ -82,9 +82,9 @@ public class GetBasicSalesTaxRateTest {
         when(taxRateSupplier.get()).thenReturn(10d);
         when(exceptionalCategoriesSupplier.get()).thenReturn(exceptionalCategories);
 
-        final double rateWhenNotExceptional = getSalesTaxRate.apply(new Product("some product", exceptionalCategory, false, 1));
+        final double rateWhenNotExceptional = salesTaxRateProvider.apply(new Product("some product", exceptionalCategory, false, 1));
         exceptionalCategories.add(exceptionalCategory);
-        final double rateWhenExceptional = getSalesTaxRate.apply(new Product("some product", exceptionalCategory, false, 1));
+        final double rateWhenExceptional = salesTaxRateProvider.apply(new Product("some product", exceptionalCategory, false, 1));
 
         assertThat(rateWhenNotExceptional).isEqualTo(10);
         assertThat(rateWhenExceptional).isEqualTo(0d);
@@ -95,7 +95,7 @@ public class GetBasicSalesTaxRateTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("product should not be null");
 
-        getSalesTaxRate.apply(null);
+        salesTaxRateProvider.apply(null);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class GetBasicSalesTaxRateTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("exceptionalCategoriesSupplier should not be null");
 
-        new GetBasicSalesTaxRate(taxRateSupplier, null);
+        new BasicSalesTaxRateProvider(taxRateSupplier, null);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class GetBasicSalesTaxRateTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("taxRateSupplier should not be null");
 
-        new GetBasicSalesTaxRate(null, exceptionalCategoriesSupplier);
+        new BasicSalesTaxRateProvider(null, exceptionalCategoriesSupplier);
     }
 
 }

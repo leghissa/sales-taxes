@@ -2,27 +2,25 @@ package test.exercise.sales.taxes.model;
 
 import test.exercise.sales.taxes.util.DBC;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class Receipt {
 
-    private final Map<PurchasedItem, Integer> purchasedItems = new HashMap<>();
+    private final Set<PurchasedItem> purchasedItems = new LinkedHashSet<>();
     private double salesTaxes = 0;
     private double total =0 ;
 
-    public void addItem(PurchasedItem purchasedItem, int quantity){
+    public void addItem(PurchasedItem purchasedItem){
         DBC.notNull(purchasedItem, "purchasedItem should not be null");
-        DBC.precondition(quantity > 0, "quantity should not be less than 1");
-        DBC.precondition(!purchasedItems.containsKey(purchasedItem), String.format("receipt already contains product %s",purchasedItem.getProduct().getName()));
+        DBC.precondition(!purchasedItems.contains(purchasedItem), String.format("receipt already contains product %s",purchasedItem.getProduct().getName()));
 
-        purchasedItems.put(purchasedItem, quantity);
-        final double salesTax = purchasedItem.getSalesTax();
-        salesTaxes+= salesTax * quantity;
-        total+= (salesTax+purchasedItem.getProduct().getPrice()) * quantity;
+        purchasedItems.add(purchasedItem);
+        salesTaxes+= purchasedItem.getSalesTax();
+        total+= purchasedItem.getTotal();
     }
 
-    public Map<PurchasedItem, Integer> getPurchasedItems() {
+    public Set<PurchasedItem> getPurchasedItems() {
         return purchasedItems;
     }
 

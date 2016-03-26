@@ -18,7 +18,7 @@ public class GetImportDutySalesTaxRateTest {
     public ExpectedException expectedException  = ExpectedException.none();
 
     private final Supplier<Double> taxRateSupplier = mock(Supplier.class);
-    private GetSalesTaxRate getImportDutySalesTax = new GetImportDutySalesTaxRate(taxRateSupplier);
+    private SalesTaxRateProvider getImportDutySalesTax = new ImportDutySalesTaxRateProvider(taxRateSupplier);
 
     @Test
     public void rateOfFivePercentForImportedProduct(){
@@ -66,7 +66,7 @@ public class GetImportDutySalesTaxRateTest {
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("taxRateSupplier should not be null");
 
-        new GetImportDutySalesTaxRate(null);
+        new ImportDutySalesTaxRateProvider(null);
     }
 
 }

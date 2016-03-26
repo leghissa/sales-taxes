@@ -2,12 +2,12 @@ package test.exercise.sales.taxes.model;
 
 import test.exercise.sales.taxes.util.DBC;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ShoppingBasket {
 
-    private final Map<Product, Integer> items = new HashMap<>();
+    private final Map<Product, Integer> items = new LinkedHashMap<>();
 
     public Map<Product, Integer> getItems() {
         return items;

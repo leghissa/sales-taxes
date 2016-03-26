@@ -8,14 +8,14 @@ public class RoundToNearestFivePercentExceptionsTest {
 
     @Rule
     public ExpectedException expectedException  = ExpectedException.none();
-    private final RoundSalesTax roundSalesTax = new RoundToNearestFivePercent();
+    private final SalesTaxRounder salesTaxRounder = new ToNearestFivePercentRounder();
 
     @Test
     public void valueShouldNotBeNegative(){
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage("value should not be less than zero");
 
-        roundSalesTax.apply(-0.1);
+        salesTaxRounder.apply(-0.1);
     }
 
 }

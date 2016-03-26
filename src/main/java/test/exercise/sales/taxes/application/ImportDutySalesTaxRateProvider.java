@@ -5,11 +5,11 @@ import test.exercise.sales.taxes.util.DBC;
 
 import java.util.function.Supplier;
 
-public class GetImportDutySalesTaxRate implements GetSalesTaxRate {
+public class ImportDutySalesTaxRateProvider implements SalesTaxRateProvider {
 
     private final Supplier<Double> taxRateSupplier;
 
-    public GetImportDutySalesTaxRate(Supplier<Double> taxRateSupplier) {
+    public ImportDutySalesTaxRateProvider(Supplier<Double> taxRateSupplier) {
         DBC.notNull(taxRateSupplier, "taxRateSupplier should not be null");
         this.taxRateSupplier = taxRateSupplier;
     }

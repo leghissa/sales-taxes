@@ -4,6 +4,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReceiptTest {
@@ -26,17 +30,13 @@ public class ReceiptTest {
     public void canAddItem(){
         final double salesTax = 2;
         final int quantity = 1;
-        final PurchasedItem purchasedItem = new PurchasedItem(product, salesTax);
+        final PurchasedItem purchasedItem = new PurchasedItem(product, salesTax, quantity);
 
-        receipt.addItem(purchasedItem, quantity);
+        receipt.addItem(purchasedItem);
 
-        final double expectedTotal = (product.getPrice() + salesTax) * quantity;
-        final double expectedSalesTax = salesTax * quantity;
-
-        assertThat(receipt.getPurchasedItems()).hasSize(1);
-        assertThat(receipt.getPurchasedItems().get(purchasedItem)).isEqualTo(quantity);
-        assertThat(receipt.getTotal()).isEqualTo(expectedTotal);
-        assertThat(receipt.getSalesTaxes()).isEqualTo(expectedSalesTax);
+        assertThat(receipt.getPurchasedItems()).isEqualTo(singleton(purchasedItem));
+        assertThat(receipt.getTotal()).isEqualTo(purchasedItem.getTotal());
+        assertThat(receipt.getSalesTaxes()).isEqualTo(purchasedItem.getSalesTax());
     }
 
     @Test
@@ -45,48 +45,30 @@ public class ReceiptTest {
         final double salesTax1 = 3.15;
         final int quantity = 1;
         final int quantity1 = 3;
-        final PurchasedItem purchasedItem = new PurchasedItem(product, salesTax);
-        final PurchasedItem purchasedItem1 = new PurchasedItem(product1, salesTax1);
+        final PurchasedItem purchasedItem = new PurchasedItem(product, salesTax, quantity);
+        final PurchasedItem purchasedItem1 = new PurchasedItem(product1, salesTax1, quantity1);
 
-        receipt.addItem(purchasedItem, quantity);
-        receipt.addItem(purchasedItem1, quantity1);
+        receipt.addItem(purchasedItem);
+        receipt.addItem(purchasedItem1);
 
-        final double expectedTotal = (product.getPrice() + salesTax) * quantity +  (product1.getPrice() + salesTax1) * quantity1;
-        final double expectedSalesTax = salesTax * quantity + salesTax1 * quantity1;
+        final List<PurchasedItem> purchasedItems = new ArrayList<>(receipt.getPurchasedItems());
+        double expectedTotal = purchasedItem.getTotal() + purchasedItem1.getTotal();
+        double expectedSalesTax = purchasedItem.getSalesTax() + purchasedItem1.getSalesTax();
 
         assertThat(receipt.getPurchasedItems()).hasSize(2);
-        assertThat(receipt.getPurchasedItems().get(purchasedItem)).isEqualTo(quantity);
-        assertThat(receipt.getPurchasedItems().get(purchasedItem1)).isEqualTo(quantity1);
+        assertThat(purchasedItems.get(0)).isEqualTo(purchasedItem);
+        assertThat(purchasedItems.get(1)).isEqualTo(purchasedItem1);
         assertThat(receipt.getTotal()).isEqualTo(expectedTotal);
         assertThat(receipt.getSalesTaxes()).isEqualTo(expectedSalesTax);
     }
 
     @Test
     public void cannotAddSameItem(){
-        final PurchasedItem purchasedItem = new PurchasedItem(product, 1);
         expectedException.expect(IllegalArgumentException.class);
         expectedException.expectMessage(String.format("receipt already contains product %s",product.getName()));
 
-        receipt.addItem(purchasedItem, 1);
-        receipt.addItem(purchasedItem, 2);
-    }
-
-    @Test
-    public void cannotAddWithQuantityZero(){
-        final PurchasedItem purchasedItem = new PurchasedItem(product, 1);
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("quantity should not be less than 1");
-
-        receipt.addItem(purchasedItem, 0);
-    }
-
-    @Test
-    public void cannotAddWithNegativeQuantity(){
-        final PurchasedItem purchasedItem = new PurchasedItem(product, 1);
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("quantity should not be less than 1");
-
-        receipt.addItem(purchasedItem, -1);
+        receipt.addItem(new PurchasedItem(product, 1, 1));
+        receipt.addItem(new PurchasedItem(product, 1, 2));
     }
 
 }

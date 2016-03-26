@@ -33,11 +33,11 @@ public class RoundToNearestFivePercentTest {
     @Parameter(value = 1)
     public double expected;
 
-    private final RoundSalesTax roundSalesTax = new RoundToNearestFivePercent();
+    private final SalesTaxRounder salesTaxRounder = new ToNearestFivePercentRounder();
 
     @Test
     public void roundTest(){
-        final double rounded = roundSalesTax.apply(unrounded);
+        final double rounded = salesTaxRounder.apply(unrounded);
         assertThat(rounded).isEqualTo(expected);
     }
 }
