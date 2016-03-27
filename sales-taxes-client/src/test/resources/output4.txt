@@ -1,0 +1,5 @@
+2 book: 24.98
+1 music CD: 16.49
+4 chocolate bar: 3.40
+Sales Taxes: 1.50
+Total: 44.87

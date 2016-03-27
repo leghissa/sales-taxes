@@ -1,4 +1,5 @@
 rootProject.name = 'sales-taxes'
 
 include 'sales-taxes-core'
+include 'sales-taxes-client'
 
